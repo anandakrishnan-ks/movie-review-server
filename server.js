@@ -6,6 +6,6 @@ app.get("/", (req, res) => {
   res.send("<h1>Movie Review</h1>");
 });
 
-app.listen(prompt, () => {
+app.listen(port, () => {
   console.log(`Server running on port...`);
 });
