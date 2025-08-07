@@ -4,7 +4,7 @@ const Review = require("../models/reviewModel");
 exports.addComment = async (req, res) => {
   try {
     const { content } = req.body;
-    const userId = req.user?._id || req.body.user_id;
+    const userId = req.user?._id;
     const reviewId = req.params.reviewId;
 
     if (!content || content.trim() === "") {
@@ -19,13 +19,14 @@ exports.addComment = async (req, res) => {
     const comment = await Comment.create({
       review_id: reviewId,
       user_id: userId,
-      content,
+      content: content.trim(),
     });
 
     res.status(201).json({ message: "Comment added", comment });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to add comment", error: err.message });
+    res.status(500).json({
+      message: "Failed to add comment",
+      error: err.message,
+    });
   }
 };

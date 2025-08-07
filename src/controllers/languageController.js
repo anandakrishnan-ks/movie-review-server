@@ -4,7 +4,7 @@ exports.addLanguage = async (req, res) => {
   try {
     const { language } = req.body;
 
-    if (!language) {
+    if (!language || language.trim() === "") {
       return res.status(400).json({ message: "Language is required" });
     }
 
@@ -13,11 +13,13 @@ exports.addLanguage = async (req, res) => {
       return res.status(400).json({ message: "Language already exists" });
     }
 
-    const newLang = await Language.create({ language });
+    const newLang = await Language.create({ language: language.trim() });
+
     res.status(201).json({ message: "Language added", language: newLang });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to add language", error: err.message });
+    res.status(500).json({
+      message: "Failed to add language",
+      error: err.message,
+    });
   }
 };

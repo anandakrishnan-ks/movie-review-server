@@ -1,10 +1,16 @@
 const Actor = require("../models/actorModel");
 
-exports.addActor = async (req, res) => {
+// POST /api/actors (Admin only)
+const addActor = async (req, res) => {
   try {
+    // Optional: Check admin role here, but better to use middleware
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+
     const { name } = req.body;
 
-    if (!name) {
+    if (!name || name.trim() === "") {
       return res.status(400).json({ message: "Actor name is required" });
     }
 
@@ -13,7 +19,7 @@ exports.addActor = async (req, res) => {
       return res.status(400).json({ message: "Actor already exists" });
     }
 
-    const actor = await Actor.create({ name });
+    const actor = await Actor.create({ name: name.trim() });
     res.status(201).json({ message: "Actor added", actor });
   } catch (err) {
     res
@@ -21,3 +27,5 @@ exports.addActor = async (req, res) => {
       .json({ message: "Failed to add actor", error: err.message });
   }
 };
+
+module.exports = { addActor };
