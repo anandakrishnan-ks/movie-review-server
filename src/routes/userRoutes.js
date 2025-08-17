@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const upload = require("../middlewares/uploadMiddleware");
 
 const {
   registerController,
@@ -16,7 +17,7 @@ const {
 const { protect, admin } = require("../middlewares/authMiddleware");
 
 // Public routes
-router.post("/register", registerController);
+router.post("/register", upload.single("profile_photo"), registerController);
 router.post("/login", loginController);
 
 // Protected routes (authenticated users)

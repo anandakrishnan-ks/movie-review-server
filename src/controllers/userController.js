@@ -2,41 +2,45 @@
 const User = require("../models/userModel");
 
 // Register user
+// Register user with Cloudinary support
 exports.registerController = async (req, res) => {
-  const {
-    username,
-    email,
-    phone,
-    password,
-    profile_photo,
-    gender,
-    role,
-    status,
-  } = req.body;
+  try {
+    const { username, email, phone, password, gender, role, status } = req.body;
 
-  if (!username || !email || !phone || !password) {
-    return res
+    // ✅ Check required fields
+    if (!username || !email || !phone || !password) {
+      return res
+        .status(400)
+        .json({ message: "All required fields must be provided" });
+    }
+
+    // ✅ Check if user already exists
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    // ✅ Cloudinary file upload (if file is passed)
+    const profile_photo = req.file ? req.file.path : null;
+
+    // ✅ Create user
+    const user = await User.create({
+      username,
+      email,
+      phone,
+      password,
+      profile_photo,
+      gender,
+      role,
+      status,
+    });
+
+    res.status(201).json({ message: "User registered successfully", user });
+  } catch (err) {
+    res
       .status(400)
-      .json({ message: "All required fields must be provided" });
+      .json({ message: "Error registering user", error: err.message });
   }
-
-  const existing = await User.findOne({ email });
-  if (existing) {
-    return res.status(400).json({ message: "Email already registered" });
-  }
-
-  const user = await User.create({
-    username,
-    email,
-    phone,
-    password,
-    profile_photo,
-    gender,
-    role,
-    status,
-  });
-
-  res.status(201).json({ message: "User registered successfully", user });
 };
 
 // Login user
