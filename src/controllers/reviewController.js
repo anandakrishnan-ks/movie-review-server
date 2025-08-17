@@ -12,8 +12,8 @@ exports.createReview = async (req, res) => {
     const review = new Review({
       content,
       rating,
-      movie: movieId,
-      user: userId,
+      movie_id: movieId,
+      user_id: userId,
     });
 
     const savedReview = await review.save();
@@ -28,8 +28,8 @@ exports.createReview = async (req, res) => {
 exports.getReviews = async (req, res) => {
   try {
     const reviews = await Review.find()
-      .populate("user", "username")
-      .populate("movie", "title");
+      .populate("user_id", "username")
+      .populate("movie_id", "title");
     res.status(200).json(reviews);
   } catch (err) {
     res
@@ -41,8 +41,8 @@ exports.getReviews = async (req, res) => {
 exports.getReviewById = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id)
-      .populate("user", "username")
-      .populate("movie", "title");
+      .populate("user_id", "username")
+      .populate("movie_id", "title");
     if (!review) return res.status(404).json({ message: "Review not found" });
     res.status(200).json(review);
   } catch (err) {
@@ -52,12 +52,37 @@ exports.getReviewById = async (req, res) => {
   }
 };
 
+exports.updateReview = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: "Review not found" });
+
+    // Only the owner can update their review
+    if (review.user_id.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to update this review" });
+    }
+
+    review.content = req.body.content || review.content;
+    review.rating = req.body.rating || review.rating;
+
+    const updatedReview = await review.save();
+    res.status(200).json(updatedReview);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error updating review", error: err.message });
+  }
+};
+
 exports.deleteReview = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id);
     if (!review) return res.status(404).json({ message: "Review not found" });
 
-    if (review.user.toString() !== req.user._id.toString()) {
+    // Correct field name is user_id
+    if (review.user_id.toString() !== req.user._id.toString()) {
       return res
         .status(403)
         .json({ message: "Unauthorized to delete this review" });

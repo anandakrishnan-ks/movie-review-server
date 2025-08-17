@@ -3,10 +3,21 @@ const User = require("../models/userModel");
 
 // Register user
 exports.registerController = async (req, res) => {
-  const { username, email, password, role } = req.body;
+  const {
+    username,
+    email,
+    phone,
+    password,
+    profile_photo,
+    gender,
+    role,
+    status,
+  } = req.body;
 
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
+  if (!username || !email || !phone || !password) {
+    return res
+      .status(400)
+      .json({ message: "All required fields must be provided" });
   }
 
   const existing = await User.findOne({ email });
@@ -14,7 +25,17 @@ exports.registerController = async (req, res) => {
     return res.status(400).json({ message: "Email already registered" });
   }
 
-  const user = await User.create({ username, email, password, role });
+  const user = await User.create({
+    username,
+    email,
+    phone,
+    password,
+    profile_photo,
+    gender,
+    role,
+    status,
+  });
+
   res.status(201).json({ message: "User registered successfully", user });
 };
 

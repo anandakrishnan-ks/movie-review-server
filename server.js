@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser"); // ✅ add this
 require("dotenv").config();
 
 const app = express();
@@ -19,7 +20,8 @@ const userRouter = require("./src/routes/userRoutes");
 const reviewRouter = require("./src/routes/reviewRouter");
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true })); // ✅ allow cookies with CORS
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

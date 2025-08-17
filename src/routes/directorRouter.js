@@ -3,14 +3,21 @@ const router = express.Router();
 
 const {
   getDirectors,
+  getDirectorById,
   addDirector,
+  updateDirector,
+  deleteDirector,
 } = require("../controllers/directorController");
+
 const { protect, admin } = require("../middlewares/authMiddleware");
 
-// Public route: get all directors
-router.get("/", getDirectors);
+// Public routes
+router.get("/", getDirectors); // Get all directors
+router.get("/:id", getDirectorById); // Get director by ID
 
-// Protected admin-only route: add director
-router.post("/", protect, admin, addDirector);
+// Admin routes
+router.post("/", protect, admin, addDirector); // Add director
+router.put("/:id", protect, admin, updateDirector); // Update director
+router.delete("/:id", protect, admin, deleteDirector); // Delete director
 
 module.exports = router;

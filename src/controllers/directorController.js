@@ -1,5 +1,6 @@
 const Director = require("../models/directorModel");
 
+// ✅ Get All Directors (Public)
 exports.getDirectors = async (req, res) => {
   try {
     const directors = await Director.find();
@@ -11,9 +12,23 @@ exports.getDirectors = async (req, res) => {
   }
 };
 
+// ✅ Get Director by ID (Public)
+exports.getDirectorById = async (req, res) => {
+  try {
+    const director = await Director.findById(req.params.id);
+    if (!director)
+      return res.status(404).json({ message: "Director not found" });
+    res.json(director);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching director", error: error.message });
+  }
+};
+
+// ✅ Add Director (Admin only)
 exports.addDirector = async (req, res) => {
   try {
-    // Role check is done in middleware; optional here
     const { name } = req.body;
     if (!name || !name.trim()) {
       return res.status(400).json({ message: "Director name is required" });
@@ -30,5 +45,38 @@ exports.addDirector = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to add director", error: error.message });
+  }
+};
+
+// ✅ Update Director (Admin only)
+exports.updateDirector = async (req, res) => {
+  try {
+    const director = await Director.findById(req.params.id);
+    if (!director)
+      return res.status(404).json({ message: "Director not found" });
+
+    director.name = req.body.name || director.name;
+    const updated = await director.save();
+
+    res.json({ message: "Director updated", director: updated });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to update director", error: error.message });
+  }
+};
+
+// ✅ Delete Director (Admin only)
+exports.deleteDirector = async (req, res) => {
+  try {
+    const director = await Director.findByIdAndDelete(req.params.id);
+    if (!director)
+      return res.status(404).json({ message: "Director not found" });
+
+    res.json({ message: "Director deleted" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to delete director", error: error.message });
   }
 };
